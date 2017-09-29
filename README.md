@@ -1,13 +1,18 @@
 # pebble_round_watchface
 
-This is a small Example for a round pebble watchface (for Pebble Round)
+This is a small example for a round pebble watchface (for the Pebble-Round smartwatch)
 
-It is used in the context of lectures - there is a time-slot for each lecture during the day.
-When the time for a lecture has come, the watchface displays how many minutes are left. 
-The lecture times are from 08:30 to 10:00, 10:15 to 11:45, 12:00 to 13:30, 14:15 to 15:45 and
+It is used by me in the context of me giving lectures and is used to show how much time 
+ has already been spent (using a circular display) and how much time is left. The lectures are placed in time-slot during the day.
+When the time for a lecture has come, the watchface displays how many minutes are left and 
+at what time the lecture will end.
+Inbetween lectures, the watchface tells me, how many minutes are left until 
+the next lecture starts. 
+The lecture times are hardcoded in the source. Currently they are from 08:30 
+to 10:00, 10:15 to 11:45, 12:00 to 13:30, 14:15 to 15:45 and
 16:00 until 17:30.
 
-Works with pebble sdk
+Works with pebble sdk (Version 4)
 
 
 This is how the watchface looks during a lecture.
@@ -26,7 +31,7 @@ A new lecture started. It will run until 11:45:
 
 ## Instructions
 
-1. Get the pebble sdk
+1. Get the pebble sdk (https://developer.pebble.com/)
 2. Run the following commands in the main directory
 2. ``pebble build``
 3. ``pebble install --emulator chalk``
