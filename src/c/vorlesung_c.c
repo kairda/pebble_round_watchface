@@ -52,7 +52,7 @@ static void drawProgressLine(GContext * ctx,int cx,int cy,int progress,int inner
 // oder man ist in einem Block, dann wird index zurueckgegeben
 // nach dem letzten block wird -100 (d.h. komplett ausserhalb zurueckgegeben)
 int checkRange(int summeMinutes) {
-    for (int index = 0;index < 10;index += 2) {
+    for (int index = 0;index < 12;index += 2) {
 
         if (summeMinutes < *(times+index)) {
 
