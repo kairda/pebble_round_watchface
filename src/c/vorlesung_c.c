@@ -17,6 +17,17 @@ static int *times = (int[])
     17*60+45, 19*60+15
 };
 
+// die Vorlesungsbloecke
+static int *timesMonday = (int[])
+  { 8*60+30, 10*60+0,
+    10*60+15, 11*60+45,
+    12*60+30, 14*60+0,
+    14*60+15, 15*60+45,
+    16*60+0, 17*60+30,
+    17*60+45, 19*60+15
+};
+
+
 
 
 // progress goes from 0 to 89 (the minutes of a "vorlesung")
@@ -51,14 +62,18 @@ static void drawProgressLine(GContext * ctx,int cx,int cy,int progress,int inner
 // entweder man ist vor einem block (dann wird -index zurueckgegeben)
 // oder man ist in einem Block, dann wird index zurueckgegeben
 // nach dem letzten block wird -100 (d.h. komplett ausserhalb zurueckgegeben)
-int checkRange(int summeMinutes) {
+int checkRange(int summeMinutes, bool isMonday) {
+    int *actualTimes = times;
+    if (isMonday) {
+        actualTimes = timesMonday;
+    }
     for (int index = 0;index < 12;index += 2) {
 
-        if (summeMinutes < *(times+index)) {
+        if (summeMinutes < *(actualTimes+index)) {
 
             return -index-1;
         }
-        if (summeMinutes < *(times+index+1)) {
+        if (summeMinutes < *(actualTimes+index+1)) {
             return index;
         }
     }
