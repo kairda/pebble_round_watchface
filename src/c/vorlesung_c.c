@@ -62,12 +62,8 @@ static void drawProgressLine(GContext * ctx,int cx,int cy,int progress,int inner
 // entweder man ist vor einem block (dann wird -index zurueckgegeben)
 // oder man ist in einem Block, dann wird index zurueckgegeben
 // nach dem letzten block wird -100 (d.h. komplett ausserhalb zurueckgegeben)
-int checkRange(int summeMinutes, bool isMonday) {
-    int *actualTimes = times;
-    if (isMonday) {
-        actualTimes = timesMonday;
-    }
-    for (int index = 0;index < 12;index += 2) {
+int checkRange(int summeMinutes, int* actualTimes, int size) {
+    for (int index = 0;index < size;index += 2) {
 
         if (summeMinutes < *(actualTimes+index)) {
 
@@ -81,17 +77,11 @@ int checkRange(int summeMinutes, bool isMonday) {
 }
 
 /* calculates the minutes that are green (already passed) based on the current time */
-static int calcMinutesGreen(struct tm *tick_time) {
+static int calcMinutesGreen(struct tm *tick_time,int * actualTimes, int size) {
 
     int summeMinuten = tick_time->tm_hour * 60 + tick_time->tm_min;
 
-    bool isMonday = tick_time->tm_wday == 1;
-
-    int *actualTimes = times;
-    if (isMonday) {
-	actualTimes = timesMonday;
-    }
-    int rangeIndex = checkRange(summeMinuten,isMonday);
+    int rangeIndex = checkRange(summeMinuten,actualTimes,size);
     if ( rangeIndex >= 0) {
 
         // we are within a block, the starttime is before the current summeMinuten Value
@@ -119,16 +109,11 @@ static int calcMinutesGreen(struct tm *tick_time) {
 
 static char* next_time_str = "1234567";
 
-static void calcNextTimeString(struct tm * tick_time) {
+static void calcNextTimeString(struct tm * tick_time, int* actualTimes, int size) {
 
     int summeMinuten = tick_time->tm_hour * 60 + tick_time->tm_min;
 
-    bool isMonday = tick_time->tm_wday==1;
-    int * actualTimes = times;
-    if (isMonday) {
-	actualTimes = timesMonday;
-    }
-    int rangeIndex = checkRange(summeMinuten, isMonday);
+    int rangeIndex = checkRange(summeMinuten, actualTimes,12);
     if ( rangeIndex >= 0) {
 
         int endTime = *(actualTimes + rangeIndex + 1);
@@ -172,15 +157,21 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
     time_t temp = time(NULL);
     struct tm *tick_time = localtime(&temp);
 
+    int * actualTimes = times;
+    if (tick_time->tm_wday==1) {
+        // we are on a monday
+        actualTimes = timesMonday;
+    }
+
     static char s_buffer[8];
     strftime(s_buffer, sizeof(s_buffer), "%H:%M", tick_time);
     //snprintf(s_buffer,7,"%d",tick_time->tm_wday); 
     text_layer_set_text(s_text_layer,s_buffer);
 
-    calcNextTimeString(tick_time);
+    calcNextTimeString(tick_time,actualTimes,12);
     text_layer_set_text(s_next_time_layer,next_time_str);
 
-    int minutesGreen = calcMinutesGreen(tick_time);
+    int minutesGreen = calcMinutesGreen(tick_time,actualTimes,12);
 
     int cx = 90;
     int cy = 90;
