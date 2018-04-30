@@ -85,12 +85,18 @@ static int calcMinutesGreen(struct tm *tick_time) {
 
     int summeMinuten = tick_time->tm_hour * 60 + tick_time->tm_min;
 
-    int rangeIndex = checkRange(summeMinuten);
+    bool isMonday = tick_time->tm_wday == 1;
+
+    int *actualTimes = times;
+    if (isMonday) {
+	actualTimes = timesMonday;
+    }
+    int rangeIndex = checkRange(summeMinuten,isMonday);
     if ( rangeIndex >= 0) {
 
         // we are within a block, the starttime is before the current summeMinuten Value
 
-        int startTime = *(times + rangeIndex);
+        int startTime = *(actualTimes + rangeIndex);
 
         int minutesGreen = summeMinuten - startTime;
 
@@ -101,7 +107,7 @@ static int calcMinutesGreen(struct tm *tick_time) {
 
         if (rangeIndex > -100) {
             // it is an inverted index to the next range ...
-            int startTime = *(times - rangeIndex-1);
+            int startTime = *(actualTimes - rangeIndex-1);
             // startTime is after the current summeMinuten Value
             return summeMinuten - startTime; // then this will be the negative starting time
         }
@@ -117,10 +123,15 @@ static void calcNextTimeString(struct tm * tick_time) {
 
     int summeMinuten = tick_time->tm_hour * 60 + tick_time->tm_min;
 
-    int rangeIndex = checkRange(summeMinuten);
+    bool isMonday = tick_time->tm_wday==1;
+    int * actualTimes = times;
+    if (isMonday) {
+	actualTimes = timesMonday;
+    }
+    int rangeIndex = checkRange(summeMinuten, isMonday);
     if ( rangeIndex >= 0) {
 
-        int endTime = *(times + rangeIndex + 1);
+        int endTime = *(actualTimes + rangeIndex + 1);
 
         int hours = endTime / 60;
         int minutes = (endTime - (hours * 60));
@@ -131,7 +142,7 @@ static void calcNextTimeString(struct tm * tick_time) {
     } else {
         if (rangeIndex > -100) {
             // it is an inverted index to the next range ...
-            int startTime = *(times - rangeIndex - 1);
+            int startTime = *(actualTimes - rangeIndex - 1);
 
 
             int hours = startTime / 60;
@@ -163,7 +174,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
 
     static char s_buffer[8];
     strftime(s_buffer, sizeof(s_buffer), "%H:%M", tick_time);
-
+    //snprintf(s_buffer,7,"%d",tick_time->tm_wday); 
     text_layer_set_text(s_text_layer,s_buffer);
 
     calcNextTimeString(tick_time);
